@@ -1,3 +1,7 @@
+import logging
+import os
+import sys
+
 from typing import List, Tuple
 from random import randint, randrange
 
@@ -79,9 +83,10 @@ class ArithmeticMean:
         return int(sum(list(map(lambda x: (x - mean_value)**2, sample_values))))
 
     @staticmethod
-    def property_three(sample_values_group_one: List,
-                       sample_values_group_two: List,
-                       expected_index: int) -> Tuple:
+    def property_three(random_element_one: int,
+                       random_element_two: int,
+                       operation: str = "add"
+                       ) -> int:
         """
         If we've got two sets that have the same len, the sum or subtraction
         of two elements will be equal to the sum or subtraction of the mean
@@ -90,69 +95,57 @@ class ArithmeticMean:
         @todo Spanish text is hard to understand... I'm not sure if they mean
         this.
 
-        :param sample_values_group_one:
-        :param sample_values_group_two:
-        :param expected_index:
-        :return: tuple
+        :param random_element_one:
+        :param random_element_two:
+        :param operation:
+        :return: int
         """
+        if operation == "add":
+            individual_deviation_sum = random_element_one + random_element_two
+            individual_mean_sum = (random_element_one / 1) +\
+                                  (random_element_two / 1)
+            operation_result = individual_deviation_sum == individual_mean_sum
+        else:
+            individual_deviation_subtratction = random_element_one -\
+                                                random_element_two
+            individual_mean_subtraction = (random_element_one / 1) - \
+                                          (random_element_two / 1)
+            operation_result = individual_deviation_subtratction == \
+                individual_mean_subtraction
 
-        if len(sample_values_group_one) != len(sample_values_group_two):
-            print("here 1")
-            raise Exception("Sample values have different len")
-
-        if len(sample_values_group_one) - 1 < expected_index or \
-                expected_index > len(sample_values_group_one) - 1:
-            print("here 2")
-            raise Exception("Expected index is not in the right range for this"
-                            "operation")
-        try:
-            # With list.index fails sometimes randomly
-            sum_values = sample_values_group_one.index(expected_index) + \
-                sample_values_group_two[expected_index]
-            subtraction_values = sample_values_group_one.index(expected_index) - \
-                sample_values_group_two[expected_index]
-
-            mean_sum = int(sample_values_group_one.index(expected_index) / 1 +
-                           sample_values_group_two.index(expected_index) / 1
-                           )
-            mean_subtraction = int(sample_values_group_one.index(expected_index)
-                                   / 1 -
-                                   sample_values_group_two.index(expected_index) /
-                                   1
-                                   )
-            print(f"+ Individual elements: {sum_values} == {mean_sum},"
-                  f"{subtraction_values} == {mean_subtraction}")
-            return sum_values == mean_sum and subtraction_values ==\
-                   mean_subtraction
-        except ValueError:
-            print(f"Wtf?. Expected index: {expected_index}\n"
-                  f"SVGL1: {len(sample_values_group_one)}, {sample_values_group_one}"
-                  f"SVGL2: {len(sample_values_group_two)}, {sample_values_group_two}"
-                  )
+        return operation_result
 
 
 if __name__ == '__main__':
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+
     age_sample = [14, 16, 15, 18, 17, 19, 19, 18]
-    print(problem_description())
+    logging.info(problem_description())
     age_mean = ArithmeticMean.get_arithmetic_mean(age_sample)
-    print(ArithmeticMean.property_one_description())
+    logging.info(ArithmeticMean.property_one_description())
     deviation_sum = ArithmeticMean.property_one(age_sample, age_mean)
-    print(deviation_sum)
-    print(ArithmeticMean.property_two_description())
+    logging.info(deviation_sum)
+    logging.info(ArithmeticMean.property_two_description())
     squared_deviation = ArithmeticMean.property_two(age_sample, age_mean)
     a_random_value = randint(1, 10)
     squared_deviation_with_random = ArithmeticMean.property_one(age_sample,
                                                                 a_random_value)
-    print(f"{squared_deviation} <= {squared_deviation_with_random}."
-          f"Random is {a_random_value}")
+    logging.info(f"{squared_deviation} <= {squared_deviation_with_random}."
+                 f"Random is {a_random_value}")
     assert deviation_sum == 0
     amu = ArithmeticMeanUtil()
     sample_values_group_one = amu.random_list_generator(10, 8)
     sample_values_group_two = amu.random_list_generator(10, 8)
     random_index_picker = randrange(1, len(sample_values_group_one) - 1)
-    print(f"Random picked index {random_index_picker},"
-          f"List len {len(sample_values_group_one)}")
-    output = ArithmeticMean.property_three(sample_values_group_one,
-                                           sample_values_group_two,
-                                           random_index_picker)
-    print(f"Output is {output}")
+    logging.info(f"Random picked index {random_index_picker}")
+    first_number = sample_values_group_one[random_index_picker]
+    second_number = sample_values_group_two[random_index_picker]
+    add_property_three = ArithmeticMean.property_three(first_number,
+                                                       second_number,
+                                                       "add"
+                                                       )
+    assert add_property_three is True
+    subtraction_property_three = ArithmeticMean.property_three(first_number,
+                                                               second_number
+                                                               )
+    assert subtraction_property_three is True
